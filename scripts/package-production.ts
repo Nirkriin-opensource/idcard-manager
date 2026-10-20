@@ -82,7 +82,7 @@ async function main() {
   const staging = await mkdtemp(path.join(output, "staging-"));
   if (path.dirname(staging) !== output)
     throw new Error("Unexpected package staging location.");
-  const name = `multipurpose-card-manager-${release.version}`;
+  const name = `idcard-manager-${release.version}`;
   const folder = path.join(staging, name);
   await mkdir(folder);
   try {
@@ -134,7 +134,7 @@ async function main() {
       path.join(folder, "SOURCE-MANIFEST.json"),
       JSON.stringify(
         {
-          product: "Multipurpose Card Manager",
+          product: "IDcard Manager",
           version: release.version,
           license: "MIT",
           migrations,
