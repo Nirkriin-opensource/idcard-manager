@@ -1,0 +1,2 @@
+Face framing uses JSFeat 0.0.8 (Eugene Zatepyakin, MIT).
+The bundled frontal-face cascade is derived from Martin Tschirsich's js-objectdetect implementation. Source: https://github.com/inspirit/jsfeat/blob/master/cascades/frontalface.js . The original attribution comment is retained here; the model was exported as JSON without changing its weights. JSFeat's MIT license is included alongside this notice.
