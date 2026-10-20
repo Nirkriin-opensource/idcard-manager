@@ -1,0 +1,30 @@
+CREATE TABLE organization_settings (organization_id uuid PRIMARY KEY REFERENCES organizations(id), verification_fields text[] NOT NULL DEFAULT '{}', location_enabled boolean NOT NULL DEFAULT false);
+INSERT INTO organization_settings(organization_id) SELECT id FROM organizations;
+CREATE TABLE verification_lookup (token_hash text PRIMARY KEY, organization_id uuid NOT NULL REFERENCES organizations(id));
+INSERT INTO verification_lookup SELECT verify_hash,organization_id FROM cards;
+CREATE FUNCTION register_verification() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN INSERT INTO verification_lookup VALUES(NEW.verify_hash,NEW.organization_id); RETURN NEW; END $$;
+CREATE TRIGGER register_card_verification AFTER INSERT ON cards FOR EACH ROW EXECUTE FUNCTION register_verification();
+ALTER TABLE cards ADD COLUMN supersedes_id uuid;
+ALTER TABLE cards ADD COLUMN request_key text;
+ALTER TABLE cards ADD CONSTRAINT card_supersedes_tenant FOREIGN KEY(organization_id,supersedes_id) REFERENCES cards(organization_id,id);
+CREATE UNIQUE INDEX card_request_idempotency ON cards(organization_id,request_key) WHERE request_key IS NOT NULL;
+CREATE TABLE locations (id uuid PRIMARY KEY,organization_id uuid NOT NULL REFERENCES organizations(id),unit_id uuid,address text NOT NULL DEFAULT '',latitude double precision NOT NULL CHECK(latitude BETWEEN -85 AND 85),longitude double precision NOT NULL CHECK(longitude BETWEEN -180 AND 180),map_asset_id uuid,UNIQUE(organization_id,id),FOREIGN KEY(organization_id,unit_id) REFERENCES org_units(organization_id,id),FOREIGN KEY(organization_id,map_asset_id) REFERENCES assets(organization_id,id));
+CREATE TABLE print_profiles (id uuid PRIMARY KEY,organization_id uuid NOT NULL REFERENCES organizations(id),name text NOT NULL,options jsonb NOT NULL,UNIQUE(organization_id,id));
+CREATE TABLE generation_jobs (id uuid PRIMARY KEY,organization_id uuid NOT NULL REFERENCES organizations(id),actor_id uuid NOT NULL REFERENCES users(id),template_version_id uuid NOT NULL,request_key text NOT NULL,status text NOT NULL DEFAULT 'QUEUED' CHECK(status IN ('QUEUED','RUNNING','COMPLETED','FAILED','CANCELLED')),created_at timestamptz NOT NULL DEFAULT now(),finished_at timestamptz,UNIQUE(organization_id,id),UNIQUE(organization_id,request_key),FOREIGN KEY(organization_id,template_version_id) REFERENCES template_versions(organization_id,id));
+CREATE TABLE generation_items (id uuid PRIMARY KEY,organization_id uuid NOT NULL,job_id uuid NOT NULL,person_id uuid NOT NULL,card_id uuid NOT NULL, snapshot jsonb NOT NULL,status text NOT NULL DEFAULT 'PENDING' CHECK(status IN ('PENDING','DONE','FAILED')),error text,UNIQUE(job_id,person_id),FOREIGN KEY(organization_id,job_id) REFERENCES generation_jobs(organization_id,id),FOREIGN KEY(organization_id,person_id) REFERENCES people(organization_id,id));
+CREATE INDEX generation_pending ON generation_items(job_id,status);
+CREATE TABLE export_jobs (id uuid PRIMARY KEY,organization_id uuid NOT NULL REFERENCES organizations(id),actor_id uuid NOT NULL REFERENCES users(id),request_key text NOT NULL,options jsonb NOT NULL,render_ids jsonb NOT NULL,status text NOT NULL DEFAULT 'QUEUED' CHECK(status IN ('QUEUED','RUNNING','COMPLETED','FAILED')),completed integer NOT NULL DEFAULT 0,total integer NOT NULL,storage_key text,error text,created_at timestamptz NOT NULL DEFAULT now(),UNIQUE(organization_id,id),UNIQUE(organization_id,request_key));
+CREATE TABLE api_tokens (id uuid PRIMARY KEY,organization_id uuid NOT NULL REFERENCES organizations(id),user_id uuid NOT NULL REFERENCES users(id),name text NOT NULL,token_hash text NOT NULL UNIQUE,scopes text[] NOT NULL,expires_at timestamptz NOT NULL,created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE api_token_lookup(token_hash text PRIMARY KEY,organization_id uuid NOT NULL REFERENCES organizations(id));
+CREATE FUNCTION register_api_token() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN INSERT INTO api_token_lookup VALUES(NEW.token_hash,NEW.organization_id);RETURN NEW;END $$;
+CREATE TRIGGER api_token_registry AFTER INSERT ON api_tokens FOR EACH ROW EXECUTE FUNCTION register_api_token();
+DO $$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['organization_settings','locations','print_profiles','generation_jobs','generation_items','export_jobs','api_tokens'] LOOP
+ EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY',t);
+ EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY',t);
+ EXECUTE format('CREATE POLICY tenant_isolation ON %I USING (organization_id=nullif(current_setting(''app.org_id'',true),'''')::uuid) WITH CHECK (organization_id=nullif(current_setting(''app.org_id'',true),'''')::uuid)',t);
+ END LOOP;
+END $$;
+CREATE INDEX cards_status ON cards(organization_id,status,expires_at);
+CREATE INDEX card_events_history ON card_events(organization_id,card_id,created_at);
+CREATE INDEX audit_org_date ON audit_events(organization_id,created_at);
