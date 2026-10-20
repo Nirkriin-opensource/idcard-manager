@@ -1,19 +1,19 @@
-# Multipurpose Card Manager
+# IDcard Manager
 
-Self-hosted identity data collection, card design and printing. **Version 0.23.0 · MIT license.**
+Self-hosted identity data collection, card design and printing. **Version 0.23.1 · MIT license.**
 
 Manage an organization’s people and photos, collect responses through shareable forms, design one reusable General card template, generate cards in the background and download print-ready files.
 
 ## Host from one package
 
-Download the tagged hosting archive and checksum file from [GitHub Releases](https://github.com/Nirkriin-opensource/multipurpose-card-manager/releases).
+Download the tagged hosting archive and checksum file from [GitHub Releases](https://github.com/Nirkriin-opensource/idcard-manager/releases).
 
 On a dedicated Ubuntu 22.04/24.04 LTS server:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-tar -xzf multipurpose-card-manager-0.23.0.tar.gz
-cd multipurpose-card-manager-0.23.0
+tar -xzf idcard-manager-0.23.1.tar.gz
+cd idcard-manager-0.23.1
 sudo bash install.sh --domain cards.example.org --email your-admin@example.org --non-interactive
 ```
 

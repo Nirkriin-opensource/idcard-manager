@@ -1,11 +1,11 @@
 {
   "name": "idcard",
-  "version": "0.23.0",
-  "description": "Self-hosted multipurpose card management, collection forms and printing",
+  "version": "0.23.1",
+  "description": "Self-hosted ID card management, collection forms and printing",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Nirkriin-opensource/multipurpose-card-manager.git"
+    "url": "https://github.com/Nirkriin-opensource/idcard-manager.git"
   },
   "private": true,
   "engines": {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.23.1 — IDcard Manager branding
+
+Correct the application, repository, documentation and hosting archive name to IDcard Manager.
+
+
 ## 0.23.0 — public hosting package
 
 Publish the integrated application under MIT with a single native Ubuntu hosting archive, all ten migrations, dependency lockfile, CycloneDX SBOM, file manifest and SHA-256 checksums. Exclude runtime storage, backups, private environment files, local reports and screenshots from the public bundle. Add hosting/contribution/security documentation and a tagged GitHub release workflow. Generate Next.js route types before checking a fresh checkout. Existing deployment data and credentials are not distributed or changed by packaging.
@@ -30,7 +35,7 @@ Add tenant-scoped, session-admin-only purge controls for older audit entries, sa
 
 ## 0.22.0 — multilingual printing and navigation
 
-Add English-first primary/additional print languages, installed font choices, Windows/WSL PC sync and manual TTF/OTF/TTC uploads. Check actual glyph coverage and shape complex scripts with Pango, freeze font identifiers for new batches, retain per-field font overrides, and provide authenticated browser font loading. Replace all menu glyphs with coordinated SVG icons, including mobile, and set the footer to “Multipurpose card Manager”. Renderer revision 0.23.0. The supplied Claude reference requires sign-in, so no exact visual match is claimed.
+Add English-first primary/additional print languages, installed font choices, Windows/WSL PC sync and manual TTF/OTF/TTC uploads. Check actual glyph coverage and shape complex scripts with Pango, freeze font identifiers for new batches, retain per-field font overrides, and provide authenticated browser font loading. Replace all menu glyphs with coordinated SVG icons, including mobile, and set the footer to “IDcard Manager”. Renderer revision 0.23.0. The supplied Claude reference requires sign-in, so no exact visual match is claimed.
 
 ## 0.22.0 — application branding and themes
 
