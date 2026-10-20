@@ -1,0 +1,38 @@
+[Unit]
+Description=ID Card web application
+After=network.target postgresql.service
+Requires=postgresql.service
+[Service]
+Type=simple
+User=idcard
+Group=idcard
+WorkingDirectory=/opt/idcard/current
+EnvironmentFile=/etc/idcard/idcard.env
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/idcard/storage -/var/lib/idcard/restored
+RestrictSUIDSGID=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+LockPersonality=true
+PrivateDevices=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectClock=true
+ProtectProc=invisible
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+RemoveIPC=true
+[Install]
+WantedBy=multi-user.target

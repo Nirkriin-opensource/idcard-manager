@@ -1,0 +1,10 @@
+[Unit]
+Description=Consistent daily ID Card backup
+After=postgresql.service
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/idcard/current
+ExecStart=/usr/local/bin/idcardctl backup
+ExecStartPost=/usr/bin/node /opt/idcard/current/dist/cli/main.js ops prune
+UMask=0077
