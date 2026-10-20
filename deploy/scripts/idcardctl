@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+umask 077
+[[ $EUID -eq 0 ]] || { echo 'Run with sudo.' >&2; exit 1; }
+[[ -f /etc/idcard/idcard.env && -d /opt/idcard/current ]] || { echo 'ID Card is not installed. Run install.sh first.' >&2; exit 1; }
+case "${1:-status}" in
+  setup-admin)
+    set -a; source /etc/idcard/idcard.env; set +a
+    cd /opt/idcard/current
+    exec runuser -u idcard -- node dist/cli/main.js bootstrap-admin "${@:2}";;
+  sync-fonts)
+    set -a; source /etc/idcard/idcard.env; set +a
+    cd /opt/idcard/current
+    exec runuser -u idcard -- node dist/cli/main.js sync-fonts;;
+  harden) cd /opt/idcard/current; exec bash deploy/scripts/harden.sh "${@:2}";;
+  security) cd /opt/idcard/current; exec bash deploy/scripts/security-check.sh;;
+  backup|restore|update|rollback|uninstall) cd /opt/idcard/current; exec /usr/bin/node dist/cli/main.js ops "$@";;
+  status) systemctl --no-pager status idcard-web idcard-worker;;
+  start|stop|restart) systemctl "$1" idcard-web idcard-worker;;
+  logs) case "${2:-web}" in web|worker) journalctl -u "idcard-${2:-web}" -n 100 --no-pager;; *) echo 'Choose web or worker.' >&2; exit 2;; esac;;
+  doctor|test)
+    set -a; source /etc/idcard/idcard.env; set +a
+    cd /opt/idcard/current
+    fail=0
+    for unit in idcard-web idcard-worker postgresql@16-main caddy; do
+      if systemctl is-active --quiet "$unit"; then echo "PASS service: $unit"; else echo "FAIL $unit: inspect journalctl -u $unit and restart the service." >&2; fail=1; fi
+    done
+    if ! runuser -u idcard -- node dist/cli/main.js doctor; then fail=1; fi
+    if ! bash deploy/scripts/security-check.sh; then fail=1; fi
+    if curl -fsS http://127.0.0.1:3000/api/health/live >/dev/null; then echo 'PASS HTTP application'; else echo 'FAIL HTTP: inspect idcard-web and port 3000.' >&2; fail=1; fi
+    if caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile >/dev/null; then echo 'PASS Caddy configuration'; else fail=1; fi
+    [[ $(stat -c '%a' /etc/idcard/idcard.env) == 600 ]] || { echo 'FAIL environment permissions: chmod 600 /etc/idcard/idcard.env'; fail=1; }
+    if ((fail)); then echo 'Some checks failed.' >&2; exit 1; fi
+    echo 'All application diagnostics passed. Fresh-server restore and physical printing require separate acceptance testing.';;
+  *) echo 'Available: status | start | stop | restart | logs [web|worker] | doctor | security | harden [--fail2ban] | test | sync-fonts | setup-admin [email]. backup | restore <archive> | update <source-directory> | rollback | uninstall [--purge].' >&2; exit 2;;
+esac
