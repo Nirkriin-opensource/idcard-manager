@@ -93,7 +93,7 @@ export default function PublicCollection({
   }
   return (
     <main className="collection-public">
-      <div className="collection-brand">Multipurpose card Manager</div>
+      <div className="collection-brand">IDcard Manager</div>
       <section className="panel">
         {!loaded ? (
           <p>Loading form…</p>

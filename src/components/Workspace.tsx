@@ -2002,7 +2002,7 @@ export default function Workspace({
               onRefresh={refresh}
             />
           )}
-          <footer>Multipurpose card Manager</footer>
+          <footer>IDcard Manager</footer>
         </main>
         {edit && (
           <div className="modal-backdrop">
