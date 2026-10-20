@@ -3439,7 +3439,7 @@ test(
         .click();
       assert.equal(
         await page.locator("footer").innerText(),
-        "Multipurpose card Manager",
+        "IDcard Manager",
       );
       assert.ok((await page.locator("nav .nav-icon svg").count()) >= 10);
       await page
