@@ -1,4 +1,4 @@
-# Host Multipurpose Card Manager
+# Host IDcard Manager
 
 ## What the package contains
 
@@ -9,13 +9,13 @@ This is an internet-connected installer, not an offline binary or Windows execut
 ## Install on a dedicated Ubuntu host
 
 1. Point a domain such as `cards.example.org` to the host. Allow your SSH port and public HTTP/HTTPS ports 80/443. Check cloud firewall rules as well as the host firewall.
-2. Download `multipurpose-card-manager-0.23.0.tar.gz` and `SHA256SUMS.txt` from the project's tagged GitHub release. Obtain them from a trusted release; checksums provide integrity, not independent certification of the publisher.
+2. Download `idcard-manager-0.23.1.tar.gz` and `SHA256SUMS.txt` from the project's tagged GitHub release. Obtain them from a trusted release; checksums provide integrity, not independent certification of the publisher.
 3. Verify, extract and install:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS.txt
-tar -xzf multipurpose-card-manager-0.23.0.tar.gz
-cd multipurpose-card-manager-0.23.0
+tar -xzf idcard-manager-0.23.1.tar.gz
+cd idcard-manager-0.23.1
 sha256sum --check SHA256SUMS
 sudo bash install.sh --domain cards.example.org --email your-admin@example.org --non-interactive
 ```
@@ -47,7 +47,7 @@ Use WSL for development or a controlled LAN deployment. The same archive can be 
 
 ```bash
 sudo idcardctl backup
-sudo idcardctl update /path/to/reviewed/multipurpose-card-manager-source
+sudo idcardctl update /path/to/reviewed/idcard-manager-source
 sudo idcardctl doctor
 ```
 

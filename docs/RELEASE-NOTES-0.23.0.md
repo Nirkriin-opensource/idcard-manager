@@ -1,4 +1,4 @@
-# Multipurpose Card Manager 0.23.0
+# IDcard Manager 0.23.0
 
 Initial public MIT-licensed hosting package for Ubuntu 22.04/24.04 LTS.
 
