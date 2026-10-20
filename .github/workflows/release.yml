@@ -37,4 +37,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           version=$(node -p 'require("./package.json").version')
-          gh release create "$GITHUB_REF_NAME" .production-dist/multipurpose-card-manager-*.tar.gz .production-dist/SHA256SUMS.txt .production-dist/SBOM.cdx.json .production-dist/SOURCE-MANIFEST.json --verify-tag --title "Multipurpose Card Manager $version" --notes-file "docs/RELEASE-NOTES-$version.md"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release already published; preserving existing assets."
+          else
+            gh release create "$GITHUB_REF_NAME" .production-dist/idcard-manager-*.tar.gz .production-dist/SHA256SUMS.txt .production-dist/SBOM.cdx.json .production-dist/SOURCE-MANIFEST.json --verify-tag --title "IDcard Manager $version" --notes-file "docs/RELEASE-NOTES-$version.md"
+          fi
